@@ -28,8 +28,8 @@ class ProductResource extends JsonResource
             ProductColumn::PRICE => $this->price,
             ProductColumn::CREATED_AT => DateHandler::dateFormat($this->created_at, 'd.m.Y'),
 
-            'user' => UserResource::make($this->user),
-            'categories' => CategoryResource::collection($this->categories),
+            'user' => UserResource::make($this->whenLoaded('user')),
+            'categories' => CategoryResource::collection($this->whenLoaded('categories')),
         ];
     }
 }

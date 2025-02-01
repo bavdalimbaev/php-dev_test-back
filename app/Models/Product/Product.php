@@ -4,6 +4,7 @@ namespace App\Models\Product;
 
 use App\Models\Category\Category;
 use App\Models\User\User;
+use App\Utils\Tables\Category\CategoryProductColumn;
 use App\Utils\Tables\ETables;
 use App\Utils\Tables\Product\ProductColumn;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,6 +30,6 @@ class Product extends Model
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class, ETables::CATEGORY_PRODUCT->value, CategoryProductColumn::PRODUCT_ID, CategoryProductColumn::CATEGORY_ID);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Events\User\UserCreated;
 use App\Http\Controllers\Controller;
 use App\Http\DTOs\User\UserCreateDTO;
 use App\Http\Requests\User\UserCreateRequest;
@@ -19,10 +20,10 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with(['profile'])->get();
+        $items = User::with(['profile'])->get();
 
-        $users->load(['profile']);
-        $this->setResponse(UserResource::collection($users));
+        $items->load(['profile']);
+        $this->setResponse(UserResource::collection($items));
 
         return $this->createResponse();
     }
@@ -34,7 +35,7 @@ class UserController extends Controller
     {
         $data = UserCreateDTO::from($request->validated());
 
-        $user = User::create([
+        $item = User::create([
             UserColumn::NAME => $data->name,
             UserColumn::EMAIL => $data->email,
             UserColumn::PASSWORD => bcrypt($data->password),
@@ -42,17 +43,19 @@ class UserController extends Controller
 
         if (!empty($data->bio)) {
             UserProfile::create([
-                UserProfileColumn::USER_ID => $user->getKey(),
+                UserProfileColumn::USER_ID => $item->getKey(),
                 UserProfileColumn::BIO => $data->bio,
             ]);
 
-            $user->fresh();
+            $item->fresh();
         }
 
-        $user->with(['profile']);
-        $user->load(['profile']);
+        $item->with(['profile']);
+        $item->load(['profile']);
 
-        $this->setResponse(UserResource::make($user));
+        broadcast(new UserCreated($item))->toOthers();
+
+        $this->setResponse(UserResource::make($item));
 
         return $this->createResponse();
     }
@@ -62,12 +65,12 @@ class UserController extends Controller
      */
     public function show(int $id)
     {
-        $user = User::findOrFail($id);
+        $item = User::findOrFail($id);
 
-        $user->with(['profile']);
-        $user->load(['profile']);
+        $item->with(['profile']);
+        $item->load(['profile']);
 
-        $this->setResponse(UserResource::make($user));
+        $this->setResponse(UserResource::make($item));
 
         return $this->createResponse();
     }
@@ -79,10 +82,9 @@ class UserController extends Controller
     {
         $data = UserCreateDTO::from($request->validated());
 
-        $user = User::findOrFail($id);
+        $item = User::findOrFail($id);
 
-        $user
-            ->with(['profile'])
+        $item
             ->fill([
                 UserColumn::NAME => $data->name,
                 UserColumn::EMAIL => $data->email,
@@ -90,24 +92,25 @@ class UserController extends Controller
             ])
             ->save();
 
+        $item->with(['profile']);
         if (!empty($data->bio)) {
-            if ($user->profile) {
-                $user->profile->fill([
+            if ($item->profile) {
+                $item->profile->fill([
                     UserProfileColumn::BIO => $data->bio,
                 ])
                 ->save();
             } else {
                 UserProfile::create([
-                    UserProfileColumn::USER_ID => $user->getKey(),
+                    UserProfileColumn::USER_ID => $item->getKey(),
                     UserProfileColumn::BIO => $data->bio,
                 ]);
             }
         }
 
-        $user->fresh();
-        $user->load(['profile']);
+        $item->fresh();
+        $item->load(['profile']);
 
-        $this->setResponse(UserResource::make($user));
+        $this->setResponse(UserResource::make($item));
 
         return $this->createResponse();
     }
@@ -117,9 +120,9 @@ class UserController extends Controller
      */
     public function destroy(int $id)
     {
-        $user = User::findOrFail($id);
+        $item = User::findOrFail($id);
 
-        $user->delete();
+        $item->delete();
 
         return $this->createResponse();
     }

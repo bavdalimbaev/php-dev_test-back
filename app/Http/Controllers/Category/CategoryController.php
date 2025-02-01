@@ -17,9 +17,9 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::with('products')->get();
+        $items = Category::with('products')->get();
 
-        $this->setResponse(CategoryResource::collection($categories));
+        $this->setResponse(CategoryResource::collection($items));
 
         return $this->createResponse();
     }
@@ -31,11 +31,11 @@ class CategoryController extends Controller
     {
         $data = CategoryCreateDTO::from($request->validated());
 
-        $category = Category::create([
+        $item = Category::create([
             CategoryColumn::TITLE => $data->title,
         ]);
 
-        $this->setResponse(CategoryResource::make($category));
+        $this->setResponse(CategoryResource::make($item));
 
         return $this->createResponse();
     }
@@ -45,11 +45,12 @@ class CategoryController extends Controller
      */
     public function show(int $id)
     {
-        $category = Category::findOrFail($id);
+        $item = Category::findOrFail($id);
 
-        $category->with('products');
+        $item->with(['products']);
+        $item->load(['products']);
 
-        $this->setResponse(CategoryResource::make($category));
+        $this->setResponse(CategoryResource::make($item));
 
         return $this->createResponse();
     }
@@ -61,18 +62,20 @@ class CategoryController extends Controller
     {
         $data = CategoryCreateDTO::from($request->validated());
 
-        $category = Category::findOrFail($id);
+        $item = Category::findOrFail($id);
 
-        $category
-            ->with('products')
+        $item
             ->fill([
                 CategoryColumn::TITLE => $data->title,
             ])
             ->save()
-            ->fresh()
         ;
 
-        $this->setResponse(CategoryResource::make($category));
+        $item->fresh();
+        $item->with(['products']);
+        $item->load(['products']);
+
+        $this->setResponse(CategoryResource::make($item));
 
         return $this->createResponse();
     }
@@ -82,9 +85,9 @@ class CategoryController extends Controller
      */
     public function destroy(int $id)
     {
-        $category = Category::findOrFail($id);
+        $item = Category::findOrFail($id);
 
-        $category->delete();
+        $item->delete();
 
         return $this->createResponse();
     }

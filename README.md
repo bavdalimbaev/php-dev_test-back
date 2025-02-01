@@ -14,4 +14,10 @@ Run project
 docker compose -f docker-compose.local.yml up -d
 ```
 
-
+Ide Helper
+```
+php artisan ide-helper:generate
+```
+```
+php artisan ide-helper:models
+```

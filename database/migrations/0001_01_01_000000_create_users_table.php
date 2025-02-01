@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create(ETables::USER->value, function (Blueprint $table) {
             $table->id();
             $table->string(UserColumn::NAME);
-            $table->string(UserColumn::EMAIL)->unique();
+            $table->string(UserColumn::EMAIL);
             $table->timestamp('email_verified_at')->nullable();
             $table->string(UserColumn::PASSWORD);
             $table->rememberToken();

@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests\Product;
 
+use App\Utils\Tables\Category\CategoryColumn;
 use App\Utils\Tables\ETables;
-use App\Utils\Tables\User\UserColumn;
-use App\Utils\Tables\User\UserProfileColumn;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserCreateRequest extends FormRequest
+class ProductCategoryCreate extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,10 +24,8 @@ class UserCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            UserColumn::NAME => 'required|string|max:255',
-            UserColumn::EMAIL => 'required|string|email|max:255',
-            UserColumn::PASSWORD => 'required|string',
-            UserProfileColumn::BIO => 'nullable|string',
+            'category_ids' => 'required|array',
+            'category_ids.*' => 'required|numeric|exists:' . ETables::CATEGORY->value . ',' . CategoryColumn::ID,
         ];
     }
 }

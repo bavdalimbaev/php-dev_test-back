@@ -24,7 +24,7 @@ class CategoryResource extends JsonResource
             CategoryColumn::TITLE => $this->title,
             CategoryColumn::CREATED_AT => DateHandler::dateFormat($this->created_at, 'd.m.Y'),
 
-            'categories' => ProductResource::collection($this->products),
+            'products' => ProductResource::collection($this->whenLoaded('products')),
         ];
     }
 }

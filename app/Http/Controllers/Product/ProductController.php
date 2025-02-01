@@ -17,9 +17,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('user', 'categories')->get();
+        $items = Product::with(['user', 'categories'])->get();
 
-        $this->setResponse(ProductResource::collection($products));
+        $items->load(['user', 'categories']);
+        $this->setResponse(ProductResource::collection($items));
 
         return $this->createResponse();
     }
@@ -31,14 +32,17 @@ class ProductController extends Controller
     {
         $data = ProductCreateDTO::from($request->validated());
 
-        $product = Product::create([
+        $item = Product::create([
             ProductColumn::TITLE => $data->title,
             ProductColumn::USER_ID => $data->user_id,
             ProductColumn::DESCRIPTION => $data->description,
             ProductColumn::PRICE => $data->price,
         ]);
 
-        $this->setResponse(ProductResource::make($product));
+        $item->with(['user', 'categories']);
+        $item->load(['user', 'categories']);
+
+        $this->setResponse(ProductResource::make($item));
 
         return $this->createResponse();
     }
@@ -48,12 +52,11 @@ class ProductController extends Controller
      */
     public function show(int $id)
     {
-        $product = Product::findOrFail($id);
-        $product->with([
-            'user', 'category'
-        ]);
+        $item = Product::findOrFail($id);
+        $item->with(['user', 'categories']);
+        $item->load(['user', 'categories']);
 
-        $this->setResponse(ProductResource::make($product));
+        $this->setResponse(ProductResource::make($item));
 
         return $this->createResponse();
     }
@@ -65,22 +68,30 @@ class ProductController extends Controller
     {
         $data = ProductCreateDTO::from($request->validated());
 
-        $product = Product::findOrFail($id);
+        $item = Product::findOrFail($id);
 
-        $product
-            ->with([
-                'user', 'category'
-            ])
+        $item
             ->fill([
                 ProductColumn::TITLE => $data->title,
                 ProductColumn::USER_ID => $data->user_id,
                 ProductColumn::DESCRIPTION => $data->description,
                 ProductColumn::PRICE => $data->price,
             ])
-            ->save()
-            ->fresh();
+            ->save();
 
-        $this->setResponse(ProductResource::make($product));
+        $item->fresh();
+
+        $item
+            ->with([
+                'user', 'categories'
+            ]);
+
+        $item
+            ->load([
+                'user', 'categories'
+            ]);
+
+        $this->setResponse(ProductResource::make($item));
 
         return $this->createResponse();
     }
@@ -90,9 +101,9 @@ class ProductController extends Controller
      */
     public function destroy(int $id)
     {
-        $product = Product::findOrFail($id);
+        $item = Product::findOrFail($id);
 
-        $product->delete();
+        $item->delete();
 
         return $this->createResponse();
     }
