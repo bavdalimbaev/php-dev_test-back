@@ -21,7 +21,7 @@ return new class extends Migration
 
             $table->foreignId(ProductColumn::USER_ID)->index();
             $table->foreign(ProductColumn::USER_ID)->on(ETables::USER->value)
-                ->references(UserColumn::ID)->onDelete('restrict');
+                ->references(UserColumn::ID)->onDelete('cascade');
 
             $table->string(ProductColumn::TITLE);
             $table->text(ProductColumn::DESCRIPTION)->nullable();
@@ -41,11 +41,11 @@ return new class extends Migration
 
             $table->foreignId(CategoryProductColumn::PRODUCT_ID)->index();
             $table->foreign(CategoryProductColumn::PRODUCT_ID)->on(ETables::PRODUCT->value)
-                ->references(ProductColumn::ID)->onDelete('restrict');
+                ->references(ProductColumn::ID)->onDelete('cascade');
 
             $table->foreignId(CategoryProductColumn::CATEGORY_ID)->index();
             $table->foreign(CategoryProductColumn::CATEGORY_ID)->on(ETables::CATEGORY->value)
-                ->references(CategoryColumn::ID)->onDelete('restrict');
+                ->references(CategoryColumn::ID)->onDelete('cascade');
 
             $table->timestamps();
         });

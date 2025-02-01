@@ -44,7 +44,7 @@ return new class extends Migration
 
             $table->foreignId(UserProfileColumn::USER_ID)->index();
             $table->foreign(UserProfileColumn::USER_ID)->on(ETables::USER->value)
-                ->references(UserColumn::ID)->onDelete('restrict');
+                ->references(UserColumn::ID)->onDelete('cascade');
 
             $table->string(UserProfileColumn::BIO)->nullable();
             $table->timestamps();
