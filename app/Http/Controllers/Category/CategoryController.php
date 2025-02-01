@@ -13,7 +13,41 @@ use Illuminate\Http\Request;
 class CategoryController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/categories",
+     *     summary="Получить список категорий",
+     *     tags={"Categories"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Успешный ответ",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="title", type="string", example="Category Title"),
+     *                 @OA\Property(property="created_at", type="string", format="date", example="01.01.2023"),
+     *                 @OA\Property(
+     *                     property="products",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer", example=1),
+     *                         @OA\Property(property="user_id", type="integer", example=1),
+     *                         @OA\Property(property="title", type="string", example="Product Title"),
+     *                         @OA\Property(property="description", type="string", example="Product Description"),
+     *                         @OA\Property(property="price", type="integer", example=100),
+     *                         @OA\Property(property="created_at", type="string", format="date", example="01.01.2021")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Категории не найдены"
+     *     )
+     * )
      */
     public function index()
     {
@@ -25,7 +59,49 @@ class CategoryController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/categories",
+     *     summary="Create a new category",
+     *     tags={"Categories"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"title"},
+     *             @OA\Property(property="title", type="string", example="category_title"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *          response=200,
+     *          description="Успешный ответ",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="title", type="string", example="Category Title"),
+     *                     @OA\Property(property="created_at", type="string", format="date", example="01.01.2023"),
+     *                     @OA\Property(
+     *                         property="products",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="id", type="integer", example=1),
+     *                             @OA\Property(property="user_id", type="integer", example=1),
+     *                             @OA\Property(property="title", type="string", example="Product Title"),
+     *                             @OA\Property(property="description", type="string", example="Product Description"),
+     *                             @OA\Property(property="price", type="integer", example=100),
+     *                             @OA\Property(property="created_at", type="string", format="date", example="01.01.2021")
+     *                         )
+     *                     )
+     *          )
+     *      ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     )
+     * )
      */
     public function store(CategoryCreateRequest $request)
     {
@@ -41,7 +117,48 @@ class CategoryController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/categories/{id}",
+     *     summary="Get category by ID",
+     *     tags={"Categories"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the category to retrieve",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *           response=200,
+     *           description="Успешный ответ",
+     *           @OA\JsonContent(
+     *               type="object",
+     *               @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="title", type="string", example="Category Title"),
+     *                     @OA\Property(property="created_at", type="string", format="date", example="01.01.2023"),
+     *                     @OA\Property(
+     *                         property="products",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="id", type="integer", example=1),
+     *                             @OA\Property(property="user_id", type="integer", example=1),
+     *                             @OA\Property(property="title", type="string", example="Product Title"),
+     *                             @OA\Property(property="description", type="string", example="Product Description"),
+     *                             @OA\Property(property="price", type="integer", example=100),
+     *                             @OA\Property(property="created_at", type="string", format="date", example="01.01.2021")
+     *                         )
+     *                     )
+     *           )
+     *       ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Category not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Category not found.")
+     *         )
+     *     )
+     * )
      */
     public function show(int $id)
     {
@@ -56,7 +173,63 @@ class CategoryController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/categories/{id}",
+     *     summary="Update an existing category",
+     *     tags={"Categories"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the category to update",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={"title"},
+     *              @OA\Property(property="title", type="string", example="category_title"),
+     *          )
+     *      ),
+     *     @OA\Response(
+     *            response=200,
+     *            description="Успешный ответ",
+     *            @OA\JsonContent(
+     *                type="object",
+     *                @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="title", type="string", example="Category Title"),
+     *                     @OA\Property(property="created_at", type="string", format="date", example="01.01.2023"),
+     *                     @OA\Property(
+     *                         property="products",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="id", type="integer", example=1),
+     *                             @OA\Property(property="user_id", type="integer", example=1),
+     *                             @OA\Property(property="title", type="string", example="Product Title"),
+     *                             @OA\Property(property="description", type="string", example="Product Description"),
+     *                             @OA\Property(property="price", type="integer", example=100),
+     *                             @OA\Property(property="created_at", type="string", format="date", example="01.01.2021")
+     *                         )
+     *                     )
+     *            )
+     *        ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Category not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Category not found.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     )
+     * )
      */
     public function update(CategoryCreateRequest $request, int $id)
     {
@@ -81,7 +254,29 @@ class CategoryController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/categories/{id}",
+     *     summary="Delete a category by ID",
+     *     tags={"Categories"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the category to delete",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="ok"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Category not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Category not found.")
+     *         )
+     *     )
+     * )
      */
     public function destroy(int $id)
     {

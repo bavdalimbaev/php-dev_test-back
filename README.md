@@ -21,3 +21,8 @@ php artisan ide-helper:generate
 ```
 php artisan ide-helper:models
 ```
+
+L5-swagger
+```
+php artisan l5-swagger:generate
+```

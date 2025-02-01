@@ -19,7 +19,8 @@ class UserProfileResource extends JsonResource
     {
         /** @var UserProfile $this */
         return [
-            UserProfileColumn::USER_ID => $this->getKey(),
+            UserProfileColumn::ID => $this->getKey(),
+            UserProfileColumn::USER_ID => $this->user_id,
             UserProfileColumn::BIO => $this->bio,
             UserProfileColumn::CREATED_AT => DateHandler::dateFormat($this->created_at, 'd.m.Y'),
         ];
