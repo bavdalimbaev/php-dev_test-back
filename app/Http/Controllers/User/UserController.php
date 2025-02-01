@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\DTOs\User\UserCreateDTO;
 use App\Http\Requests\User\UserCreateRequest;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
+use App\Models\User\UserProfile;
+use App\Utils\Tables\User\UserColumn;
+use App\Utils\Tables\User\UserProfileColumn;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -27,9 +31,23 @@ class UserController extends Controller
      */
     public function store(UserCreateRequest $request)
     {
-        $data = $request->validated();
+        $data = UserCreateDTO::from($request->validated());
 
-        $user = User::create($data);
+        $user = User::create([
+            UserColumn::NAME => $data->name,
+            UserColumn::EMAIL => $data->email,
+            UserColumn::PASSWORD => bcrypt($data->password),
+        ]);
+
+        if (!empty($data->bio)) {
+            UserProfile::create([
+                UserProfileColumn::USER_ID => $user->getKey(),
+                UserProfileColumn::BIO => $data->bio,
+            ]);
+
+            $user->fresh();
+        }
+
         $this->setResponse(UserResource::make($user));
 
         return $this->createResponse();
@@ -54,15 +72,34 @@ class UserController extends Controller
      */
     public function update(UserCreateRequest $request, int $id)
     {
-        $data = $request->validated();
+        $data = UserCreateDTO::from($request->validated());
 
         $user = User::findOrFail($id);
 
         $user
             ->with('profile')
-            ->fill($data)
-            ->save()
-            ->fresh();
+            ->fill([
+                UserColumn::NAME => $data->name,
+                UserColumn::EMAIL => $data->email,
+                UserColumn::PASSWORD => bcrypt($data->password),
+            ])
+            ->save();
+
+        if (!empty($data->bio)) {
+            if ($user->profile) {
+                $user->profile->fill([
+                    UserProfileColumn::BIO => $data->bio,
+                ])
+                ->save();
+            } else {
+                UserProfile::create([
+                    UserProfileColumn::USER_ID => $user->getKey(),
+                    UserProfileColumn::BIO => $data->bio,
+                ]);
+            }
+        }
+
+        $user->fresh();
 
         $this->setResponse(UserResource::make($user));
 

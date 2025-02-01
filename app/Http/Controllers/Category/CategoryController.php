@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Category;
 
 use App\Http\Controllers\Controller;
+use App\Http\DTOs\Category\CategoryCreateDTO;
 use App\Http\Requests\Category\CategoryCreateRequest;
 use App\Http\Resources\Category\CategoryResource;
 use App\Models\Category\Category;
+use App\Utils\Tables\Category\CategoryColumn;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -27,9 +29,11 @@ class CategoryController extends Controller
      */
     public function store(CategoryCreateRequest $request)
     {
-        $data = $request->validated();
+        $data = CategoryCreateDTO::from($request->validated());
 
-        $category = Category::create($data);
+        $category = Category::create([
+            CategoryColumn::TITLE => $data->title,
+        ]);
 
         $this->setResponse(CategoryResource::make($category));
 
@@ -55,13 +59,15 @@ class CategoryController extends Controller
      */
     public function update(CategoryCreateRequest $request, int $id)
     {
-        $data = $request->validated();
+        $data = CategoryCreateDTO::from($request->validated());
 
         $category = Category::findOrFail($id);
 
         $category
             ->with('products')
-            ->fill($data)
+            ->fill([
+                CategoryColumn::TITLE => $data->title,
+            ])
             ->save()
             ->fresh()
         ;

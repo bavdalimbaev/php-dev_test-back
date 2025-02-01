@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
+use App\Http\DTOs\Product\ProductCreateDTO;
 use App\Http\Requests\Product\ProductCreateRequest;
 use App\Http\Resources\Product\ProductResource;
 use App\Models\Product\Product;
+use App\Utils\Tables\Product\ProductColumn;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -27,9 +29,14 @@ class ProductController extends Controller
      */
     public function store(ProductCreateRequest $request)
     {
-        $data = $request->validated();
+        $data = ProductCreateDTO::from($request->validated());
 
-        $product = Product::create($data);
+        $product = Product::create([
+            ProductColumn::TITLE => $data->title,
+            ProductColumn::USER_ID => $data->user_id,
+            ProductColumn::DESCRIPTION => $data->description,
+            ProductColumn::PRICE => $data->price,
+        ]);
 
         $this->setResponse(ProductResource::make($product));
 
@@ -56,7 +63,7 @@ class ProductController extends Controller
      */
     public function update(ProductCreateRequest $request, string $id)
     {
-        $data = $request->validated();
+        $data = ProductCreateDTO::from($request->validated());
 
         $product = Product::findOrFail($id);
 
@@ -64,7 +71,12 @@ class ProductController extends Controller
             ->with([
                 'user', 'category'
             ])
-            ->fill($data)
+            ->fill([
+                ProductColumn::TITLE => $data->title,
+                ProductColumn::USER_ID => $data->user_id,
+                ProductColumn::DESCRIPTION => $data->description,
+                ProductColumn::PRICE => $data->price,
+            ])
             ->save()
             ->fresh();
 

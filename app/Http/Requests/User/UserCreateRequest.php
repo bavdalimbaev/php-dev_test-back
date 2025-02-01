@@ -4,6 +4,7 @@ namespace App\Http\Requests\User;
 
 use App\Utils\Tables\ETables;
 use App\Utils\Tables\User\UserColumn;
+use App\Utils\Tables\User\UserProfileColumn;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UserCreateRequest extends FormRequest
@@ -27,6 +28,7 @@ class UserCreateRequest extends FormRequest
             UserColumn::NAME => 'required|string|max:255',
             UserColumn::EMAIL => 'required|string|email|max:255|unique:'. ETables::USER->value,
             UserColumn::PASSWORD => 'required|string',
+            UserProfileColumn::BIO => 'nullable|string',
         ];
     }
 }
