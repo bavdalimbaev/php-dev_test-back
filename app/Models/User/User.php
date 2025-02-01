@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\User;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Product\Product;
+use App\Utils\Tables\User\UserColumn;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -18,9 +20,9 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        UserColumn::NAME,
+        UserColumn::EMAIL,
+        UserColumn::PASSWORD,
     ];
 
     /**
@@ -29,7 +31,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'password',
+        UserColumn::PASSWORD,
         'remember_token',
     ];
 
@@ -42,7 +44,17 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            UserColumn::PASSWORD => 'hashed',
         ];
+    }
+
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
     }
 }
