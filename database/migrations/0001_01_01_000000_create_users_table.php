@@ -1,5 +1,8 @@
 <?php
 
+use App\Utils\Tables\ETables;
+use App\Utils\Tables\User\UserColumn;
+use App\Utils\Tables\User\UserProfileColumn;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,12 +14,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create(ETables::USER->value, function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string(UserColumn::NAME);
+            $table->string(UserColumn::EMAIL)->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string(UserColumn::PASSWORD);
             $table->rememberToken();
             $table->timestamps();
         });
@@ -35,6 +38,17 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        Schema::create(ETables::USER_PROFILE->value, function (Blueprint $table) {
+            $table->id();
+
+            $table->foreignId(UserProfileColumn::USER_ID)->index();
+            $table->foreign(UserProfileColumn::USER_ID)->on(ETables::USER->value)
+                ->references(UserColumn::ID)->onDelete('restrict');
+
+            $table->string(UserProfileColumn::BIO)->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -42,7 +56,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists(ETables::USER_PROFILE->value);
+        Schema::dropIfExists(ETables::USER->value);
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }

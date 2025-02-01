@@ -1,0 +1,66 @@
+version: '3.7'
+services:
+  app:
+    build:
+      context: docker/local
+      dockerfile: Dockerfile
+      args:
+        WWWGROUP: '${WWWGROUP:-1000}'
+    container_name: php_test_back
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '${APP_PORT:-7700}:80'
+    environment:
+      WWWUSER: '${WWWUSER:-1000}'
+    volumes:
+      - '.:/var/www/html'
+    networks:
+      - test_php
+    depends_on:
+      - redis
+      - mysql
+
+  redis:
+    container_name: php_test_redis
+    image: 'redis:alpine'
+    ports:
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
+    volumes:
+      - 'test_php-redis:/data'
+    networks:
+      - test_php
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      retries: 3
+      timeout: 5s
+
+  mysql:
+    container_name: php_test_mysql
+    image: 'mysql/mysql-server:latest'
+    ports:
+      - '5501:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: 'postgres'
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: 'php_test_db'
+      MYSQL_USER: 'postgres'
+      MYSQL_PASSWORD: 'postgres'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+      - './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+    networks:
+      - test_php
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-p postgres" ]
+      retries: 3
+      timeout: 5s
+
+networks:
+  test_php:
+    driver: bridge
+
+volumes:
+  test_php-redis:
+    driver: local
