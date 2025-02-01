@@ -19,8 +19,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with('profile')->get();
+        $users = User::with(['profile'])->get();
 
+        $users->load(['profile']);
         $this->setResponse(UserResource::collection($users));
 
         return $this->createResponse();
@@ -48,6 +49,9 @@ class UserController extends Controller
             $user->fresh();
         }
 
+        $user->with(['profile']);
+        $user->load(['profile']);
+
         $this->setResponse(UserResource::make($user));
 
         return $this->createResponse();
@@ -60,7 +64,8 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        $user->with('profile');
+        $user->with(['profile']);
+        $user->load(['profile']);
 
         $this->setResponse(UserResource::make($user));
 
@@ -77,7 +82,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $user
-            ->with('profile')
+            ->with(['profile'])
             ->fill([
                 UserColumn::NAME => $data->name,
                 UserColumn::EMAIL => $data->email,
@@ -100,6 +105,7 @@ class UserController extends Controller
         }
 
         $user->fresh();
+        $user->load(['profile']);
 
         $this->setResponse(UserResource::make($user));
 
